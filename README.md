@@ -57,9 +57,14 @@ help, h – Show help screen
 credits, ? – Show credits  
 quit, q – Exit the program
 
-## 🛠️ Building
+## 🛠️ Building and Installing
 
 Requires a C compiler such as gcc or clang. Compile the source file dc2.c and link with the math library.
+If you're lazy and use MacOS, just brew it:
+
+```
+brew install mastro35/homebrew-mastro35/dc2
+```
 
 ## 🧾 License
 
