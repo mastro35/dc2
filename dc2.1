@@ -1,0 +1,75 @@
+.TH DC2 1 "July 2025" "Version 1.0" "Dave's RPN Calculator Manual"
+.SH NAME
+dc2 \- Dave's Reverse Polish Notation (RPN) calculator
+.SH SYNOPSIS
+.B dc2
+.SH DESCRIPTION
+\fBdc2\fR is a simple command-line calculator that uses Reverse Polish Notation (RPN).
+
+Users enter numbers and operations interactively, and the calculator manages a stack-based memory model.
+
+It is designed to be minimal, fast, and expressive for terminal usage.
+
+.SH FEATURES
+.TP
+Numbers
+Enter any decimal (positive or negative) to push it onto the stack.
+.TP
+Arithmetic Operators
+\fB+\fR, \fB-\fR, \fB*\fR, \fB/\fR \- Basic math operations.
+.TP
+Exponential / Power
+\fB^\fR, \fBpower\fR, \fBpow\fR \- Computes y raised to the power of x (y^x).
+.TP
+Trigonometric Functions
+\fBsin\fR, \fBcos\fR, \fBtan\fR
+.TP
+Advanced Math
+\fB!\fR (factorial), \fBsqrt\fR (square root), \fBrec\fR or \fBreciprocal\fR (1/x)
+.TP
+Constants
+\fBpi\fR (π), \fBe\fR (Euler's number)
+.TP
+Random
+\fBrnd\fR or \fBrandom\fR \- Pushes a pseudo-random number between 0.0 and 1.0
+.TP
+Stack Commands
+\fBd\fR (drop top value), \fBs\fR (swap top two), \fBc\fR (clear stack), \fBroll\fR or \fBcycle\fR (rotate stack)
+.TP
+Other Commands
+\fBr\fR (redo last command), \fBh\fR (help), \fB?\fR (credits), \fBq\fR (quit)
+
+.SH EXAMPLES
+.PP
+Push two numbers and add them:
+.EX
+> 3
+> 4
+> +
+.EE
+.PP
+Compute square root of a result:
+.EX
+> sqrt
+.EE
+
+.SH INTERFACE
+Each command is typed followed by ENTER. The interface displays the current stack after each operation.
+
+.SH AUTHOR
+Written by Davide "iceman" Mastromatteo <mastro35@gmail.com>
+
+.SH WEBSITE
+https://buymeacoffee.com/mastro35
+
+.SH LICENSE
+GPL-2.0-or-later
+
+.SH FILES
+None by default. The program does not persist state.
+
+.SH SEE ALSO
+dc(1), bc(1), calc(1)
+
+.SH NOTES
+Made with love in Italy 🇮🇹
