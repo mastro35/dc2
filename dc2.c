@@ -339,7 +339,9 @@ int compute(double *ptr_stack, int *ptr_sp, char* command, char* last_command) {
   }
 
   if (strcmp(command, "") == 0) {
+    if (*ptr_sp == 0) return 0;
     push(ptr_stack, ptr_sp, pick(ptr_stack, ptr_sp));
+    return 0;
   }
 
   if (strcmp(command, "e") == 0) {
