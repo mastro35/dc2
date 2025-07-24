@@ -9,6 +9,12 @@
  * Written by Davide "iceman" Mastromatteo <mastro35@gmail.com>
  */
 
+#define APP_VERSION_MAJOR 0
+#define APP_VERSION_MINOR 2
+#define APP_VERSION_PATCH 0
+
+#define APP_VERSION "0.2.0"
+
 #define STACK_LENGTH 100
 #define INPUT_BUFFER 100
 
@@ -18,16 +24,19 @@
 #include <math.h>
 #include <time.h>
 
+#include <termios.h>
+#include <unistd.h>
+
 /* ---------------
    STACK FUNCTIONS
    --------------- */
 
 /* Pick a value from the stack without popping it */
-double pick(double* ptr_stack, int *ptr_sp) {
-  if (*ptr_sp == 0) {
+double pick(double* ptr_stack, int sp) {
+  if (sp == 0) {
     return 0;
   }
-  return *(ptr_stack + (*ptr_sp - 1));  
+  return *(ptr_stack + (sp - 1));  
 }
 
 /* Pop a value from the stack returning it to the caller */
@@ -37,7 +46,7 @@ double pop(double* ptr_stack, int *ptr_sp) {
     return 0;
   }
 
-  double result = pick(ptr_stack, ptr_sp);
+  double result = pick(ptr_stack, *ptr_sp);
   (*ptr_sp)--;
   return result;
 }
@@ -68,10 +77,23 @@ void swap(double *ptr_stack, int *ptr_sp) {
   push(ptr_stack, ptr_sp, y);
 }
 
-/* roll the stack */
-void roll(double *ptr_stack, int *ptr_sp) {
+/* roll the entire stack to the left: the third item become the second, 
+   the second become the first... and so on until the first
+   become the last */
+void lroll(double *ptr_stack, int *ptr_sp) {
   if (*ptr_sp == 0) return;
-  double last_value = pick(ptr_stack, ptr_sp);
+  double first_value = pick(ptr_stack, 1); // *ptr_stack;
+
+  for (int i=0; i<((*ptr_sp) - 1); i++) ptr_stack[i] = ptr_stack[i+1];
+  ptr_stack[(*ptr_sp) - 1] = first_value;
+}
+
+/* roll the entire stack to the right: the first item become the second, 
+   the second become the third... and so on until the last 
+   become the first */
+void rroll(double *ptr_stack, int *ptr_sp) {
+  if (*ptr_sp == 0) return;
+  double last_value = pick(ptr_stack, *ptr_sp);
 
   for (int i=((*ptr_sp) - 1); i>0; i--) ptr_stack[i] = ptr_stack[i-1];
   ptr_stack[0] = last_value;
@@ -157,7 +179,17 @@ operation_1o get_operation_1o(char *operation) {
   if (strcmp(operation, "tan") == 0) {
     return tan;}
 
+  if (strcmp(operation, "asin") == 0) {
+    return asin;}
+
+  if (strcmp(operation, "acos") == 0) {
+    return acos;}
+
+  if (strcmp(operation, "atan") == 0) {
+    return atan;}
+
   if ((strcmp(operation, "reciprocal") == 0) ||
+      (strcmp(operation, "\\") == 0) ||
       (strcmp(operation, "rec") == 0)) {
     return reciprocal;}
 
@@ -334,13 +366,21 @@ int compute(double *ptr_stack, int *ptr_sp, char* command, char* last_command) {
   }
 
   if ((strcmp(command, "roll") == 0) ||
-     (strcmp(command, "cycle") == 0)) {
-    roll(ptr_stack, ptr_sp);
+      (strcmp(command, "rroll") == 0) || 
+     (strcmp(command, "ARROW_RIGHT") == 0)) {
+    rroll(ptr_stack, ptr_sp);
   }
+
+  if ((strcmp(command, "unroll") == 0) ||
+      (strcmp(command, "lroll") == 0) || 
+     (strcmp(command, "ARROW_LEFT") == 0)) {
+    lroll(ptr_stack, ptr_sp);
+  }
+
 
   if (strcmp(command, "") == 0) {
     if (*ptr_sp == 0) return 0;
-    push(ptr_stack, ptr_sp, pick(ptr_stack, ptr_sp));
+    push(ptr_stack, ptr_sp, pick(ptr_stack, *ptr_sp));
     return 0;
   }
 
@@ -376,10 +416,69 @@ int compute(double *ptr_stack, int *ptr_sp, char* command, char* last_command) {
 return 0;
 }
 
+
+void enable_raw_mode(struct termios *old_termios) {
+    struct termios new_termios;
+    tcgetattr(STDIN_FILENO, old_termios);
+    new_termios = *old_termios;
+    new_termios.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
+}
+
+void disable_raw_mode(struct termios *old_termios) {
+    tcsetattr(STDIN_FILENO, TCSANOW, old_termios);
+}
+
+/* Get an input from the keyboard */
+void power_fgets(char *buffer, int max_len) {
+    struct termios old_termios;
+    enable_raw_mode(&old_termios);
+
+    int i = 0;
+    while (i < max_len - 1) {
+        char c = getchar();
+
+        if (c == 27) { // if an escape char has been pressed...
+          char seq1 = getchar();
+          if (seq1 == '[') {
+            char seq2 = getchar();
+            switch (seq2) {
+            case 'A': strcpy(buffer, "ARROW_UP\0"); break; // printf("\n[FRECCIA SU]\n"); break;
+            case 'B': strcpy(buffer, "ARROW_DOWN\0"); break; // printf("\n[FRECCIA GIÙ]\n"); break;
+            case 'C': strcpy(buffer, "ARROW_RIGHT\0"); break; // printf("\n[FRECCIA DESTRA]\n"); break;
+            case 'D': strcpy(buffer, "ARROW_LEFT\0"); break; // printf("\n[FRECCIA SINISTRA]\n"); break;
+            default: break;
+            }
+          }            
+          break;
+        } else {
+          if (c == '\n') { 
+            putchar('\n');
+            break;
+          }
+          
+          if (c == 127 || c == 8) { // this is the backspace
+            if (i > 0) {
+              i--;
+              printf("\b \b");
+            }
+          } 
+          
+          buffer[i++] = c;
+          putchar(c);
+        }
+        
+        buffer[i] = '\0';
+    }
+
+    disable_raw_mode(&old_termios);
+}
+
 /* Get an input from the user */
 void get_input(char* input) {
     printf("> ");
-    fgets(input, (INPUT_BUFFER-1), stdin);
+    power_fgets(input, INPUT_BUFFER - 1);
+//    fgets(input, (INPUT_BUFFER-1), stdin);
     input[strcspn(input, "\n")] = '\0';
 }
 
