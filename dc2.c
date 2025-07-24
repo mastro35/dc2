@@ -1,12 +1,23 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /* dc2.c -- Dave's (RPN) Calculator
+ *
  * A simple RPN calculator for terminal
  * made with love in Italy.
  *
  * Copyright 2025 Davide Mastromatteo
- * All Rights Reserved.
  *
- * Written by Davide "iceman" Mastromatteo <mastro35@gmail.com>
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
 #define APP_VERSION_MAJOR 0
@@ -14,6 +25,7 @@
 #define APP_VERSION_PATCH 0
 
 #define APP_VERSION "0.2.0"
+#define COPYRIGHT "2025 Davide Mastromatteo"
 
 #define STACK_LENGTH 100
 #define INPUT_BUFFER 100
@@ -232,6 +244,20 @@ void get_register_name(int i, char* buffer) {
   if (i==2) strcpy(buffer," y");
 }
 
+void show_license_message(int stop) {
+  if (stop) printf("\x1B[1;1H\x1B[2J");
+  printf("dc2 %s Copyright (C) %s\n", APP_VERSION, COPYRIGHT);
+  printf("dc2 comes with ABSOLUTELY NO WARRANTY. \n");  
+  printf("This is free software, and you are welcome to redistribute it\n");
+  printf("under certain conditions.\n");
+  printf("Check the license at https://www.gnu.org/licenses/old-licenses/gpl-2.0.html\n");
+  printf("\n");
+  if (stop) {
+    printf("press ENTER to continue\n");
+    getchar();
+  }
+}
+
 /* Shows the status of the calculator  */
 void view_status(double *ptr_stack, int *ptr_sp) {
   printf("\x1B[1;1H\x1B[2J");
@@ -257,16 +283,18 @@ void set_input_if_numeric(char* input, double* value, int* is_numeric ) {
 /* Shows the credits */
 void show_credits(void) {
   printf("\x1B[1;1H\x1B[2J");
-  printf("__________________________________\n");
-  printf("Dave's (RPN) Calc\n");
+  printf("\n");
+  printf("Dave's (RPN) Calculator\n");
+  printf("ˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆ\n");
   printf("made with love in Italy\n");
-  printf("by Davide Mastromatteo\n");
-  printf("<mastro35@gmail.com>\n\n");
-  printf("If you enjoy this program\n");
-  printf("consider donating at \n");
+  printf("<mastro35@gmail.com> || https://hachyderm.io/@mastro35\n");
+  printf("If you enjoy this program buy me a coffee at\n");
   printf("https://buymeacoffee.com/mastro35\n\n");
+  printf("LICENSE INFORMATION\n");
+  printf("ˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆ\n");
+  show_license_message(0);  
+  printf("\n\n");
   printf("press ENTER to continue\n");
-  printf("__________________________________\n");
   getchar();
 }
 
@@ -343,6 +371,10 @@ int compute(double *ptr_stack, int *ptr_sp, char* command, char* last_command) {
   if ((strcmp(command, "credits") == 0) || 
       (strcmp(command, "?") == 0)) {
     show_credits();
+  }
+
+  if (strcmp(command, "license") == 0) {
+      show_license_message(1);
   }
 
   if ((strcmp(command, "help") == 0) ||
