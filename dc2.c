@@ -29,6 +29,7 @@
 
 #define STACK_LENGTH 100
 #define INPUT_BUFFER 100
+#define MAX_VIEWABLE_STACK 20
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +39,12 @@
 
 #include <termios.h>
 #include <unistd.h>
+
+// dc2 starts in rad mode
+char mode = 'r';
+
+// and with numbers in sci mode
+char numeric_format = 's';
 
 /* ---------------
    STACK FUNCTIONS
@@ -128,6 +135,14 @@ void compute_operation_1o(double *ptr_stack, int *ptr_sp, operation_1o f) {
   push(ptr_stack, ptr_sp, r);
 }
 
+void compute_trigonometric_operation_1o(double *ptr_stack, int *ptr_sp, operation_1o f) {
+  if (*ptr_sp < 1) return;
+  double x = pop(ptr_stack, ptr_sp);
+  if (mode == 'd') x = x * M_PI / 180;
+  double r = f(x);
+  push(ptr_stack, ptr_sp, r);
+}
+
 /* Compute a two-operands operation */
 void compute_operation_2o(double *ptr_stack, int *ptr_sp, operation_2o f) {
   if (*ptr_sp < 2) return;
@@ -182,6 +197,25 @@ operation_1o get_operation_1o(char *operation) {
   if (strcmp(operation, "sqrt") == 0) {
     return sqrt;}
 
+  if (strcmp(operation, "log10") == 0) {
+    return log10;}
+
+  if ((strcmp(operation, "log") == 0) || 
+      (strcmp(operation, "ln") == 0)) {
+    return log;}
+
+  if ((strcmp(operation, "reciprocal") == 0) ||
+      (strcmp(operation, "\\") == 0) ||
+      (strcmp(operation, "rec") == 0)) {
+    return reciprocal;}
+
+  return NULL;
+
+}
+
+/* Get the single operand operation corresponding
+   to the command received as input */
+operation_1o get_trigonometric_operation_1o(char *operation) {
   if (strcmp(operation, "sin") == 0) {
     return sin;}
 
@@ -199,11 +233,6 @@ operation_1o get_operation_1o(char *operation) {
 
   if (strcmp(operation, "atan") == 0) {
     return atan;}
-
-  if ((strcmp(operation, "reciprocal") == 0) ||
-      (strcmp(operation, "\\") == 0) ||
-      (strcmp(operation, "rec") == 0)) {
-    return reciprocal;}
 
   return NULL;
 
@@ -262,15 +291,37 @@ void show_license_message(int stop) {
 void view_status(double *ptr_stack, int *ptr_sp) {
   printf("\x1B[1;1H\x1B[2J");
 
-  printf("___BEGIN OF STACK___\n");
+  char mode_string[] = "err";
+  if (mode == 'd') strcpy(mode_string, "deg");
+  if (mode == 'r') strcpy(mode_string, "rad");
+
+  char numeric_format_string[] = "err";
+  if (numeric_format == 'f') strcpy(numeric_format_string, "fix");
+  if (numeric_format == 's') strcpy(numeric_format_string, "sci");
+
+  printf("┌─────┬─────┐ \n");	
+  printf("│ %s │ %s │ \n", mode_string, numeric_format_string);
+  printf("└─────┴─────┘ \n");	
+
+  printf("┌────┬────────────────┐\n");
 
   char buffer[3];
 
-  for (int i=0; i<*ptr_sp; i++) {
+  int start = 0;
+  if (*ptr_sp > MAX_VIEWABLE_STACK) {
+    start = *ptr_sp - (MAX_VIEWABLE_STACK - 1);
+    get_register_name((*ptr_sp) , buffer);
+    if (numeric_format == 'f') printf("│ %s │ %15.6lf│\n", buffer, ptr_stack[*ptr_sp-1]);
+    if (numeric_format == 's') printf("│ %s │ %15.6lg│\n", buffer, ptr_stack[*ptr_sp-1]);
+    printf("│....│................│\n");
+  }
+
+  for (int i=start; i<*ptr_sp; i++) {
     get_register_name((*ptr_sp) - i, buffer);
-    printf("%s -> %12.6lf\n", buffer, ptr_stack[i]);
+    if (numeric_format == 'f') printf("│ %s │ %15.6lf│\n", buffer, ptr_stack[i]);
+    if (numeric_format == 's') printf("│ %s │ %15.6lg│\n", buffer, ptr_stack[i]);
   } 
-  printf("____END OF STACK____\n");
+  printf("└────┴────────────────┘\n");
 }
 
 /* Set the input inserted by the user in memory */
@@ -373,6 +424,22 @@ int compute(double *ptr_stack, int *ptr_sp, char* command, char* last_command) {
     show_credits();
   }
 
+  if (strcmp(command, "rad") == 0) {
+      mode = 'r';
+  }
+
+  if (strcmp(command, "deg") == 0) {
+      mode = 'd';
+  }
+
+  if (strcmp(command, "fix") == 0) {
+      numeric_format = 'f';
+  }
+
+  if (strcmp(command, "sci") == 0) {
+      numeric_format = 's';
+  }
+  
   if (strcmp(command, "license") == 0) {
       show_license_message(1);
   }
@@ -443,6 +510,10 @@ int compute(double *ptr_stack, int *ptr_sp, char* command, char* last_command) {
 
   if ((operation_1o = get_operation_1o(command))) {
     compute_operation_1o(ptr_stack, ptr_sp, operation_1o);
+  }
+
+  if ((operation_1o = get_trigonometric_operation_1o(command))) {
+    compute_trigonometric_operation_1o(ptr_stack, ptr_sp, operation_1o);
   }
     
 return 0;
@@ -519,6 +590,7 @@ int main(void) {
   double stack[STACK_LENGTH];
   int sp = 0;
 
+  // randomize the seed
   srand48(time(NULL));
 
   char input[(INPUT_BUFFER-1)] = "";
