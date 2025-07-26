@@ -68,7 +68,7 @@ brew install mastro35/homebrew-mastro35/dc2
 
 ## 🧾 License
 
-This project is licensed under the GNU GPL v2.0 or later.
+This project is licensed under the GNU GPL v2.0.
 
 ## ☕ Support
 
