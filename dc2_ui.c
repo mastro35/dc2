@@ -83,6 +83,7 @@ void view_status(void) {
   printf("│ %s │ %s │ \n", mode_string, numeric_format_string);
   printf("└─────┴─────┘ \n");	
 
+  printf("                 STACK\n");
   printf("┌────┬────────────────┐\n");
 
   char buffer[3];

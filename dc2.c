@@ -218,7 +218,9 @@ void power_fgets(char *buffer, int max_len) {
             if (i > 0) {
               i--;
               printf("\b \b");
+              buffer[i] = '\0';
             }
+            continue;
           } 
           
           buffer[i++] = c;
