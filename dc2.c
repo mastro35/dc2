@@ -27,7 +27,7 @@
 #define APP_VERSION "0.2.0"
 #define COPYRIGHT "2025 Davide Mastromatteo"
 
-#define STACK_LENGTH 100
+#define STACK_LENGTH 99
 #define INPUT_BUFFER 100
 #define MAX_VIEWABLE_STACK 20
 
