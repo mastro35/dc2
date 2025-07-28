@@ -84,7 +84,7 @@ void view_status(void) {
   printf("└─────┴─────┘ \n");	
 
   printf("                 STACK\n");
-  printf("┌────┬────────────────┐\n");
+  printf("┌────┬──────────────────────────┐\n");
 
   char buffer[3];
 
@@ -92,17 +92,17 @@ void view_status(void) {
   if (sp > MAX_VIEWABLE_STACK) {
     start = sp - (MAX_VIEWABLE_STACK - 1);
     get_register_name((sp) , buffer);
-    if (numeric_format == 'f') printf("│ %s │ %15.6lf│\n", buffer, stack[sp - 1]);
-    if (numeric_format == 's') printf("│ %s │ %15.6lg│\n", buffer, stack[sp - 1]);
-    printf("│....│................│\n");
+    if (numeric_format == 'f') printf("│ %s │ %25.6lf│\n", buffer, stack[sp - 1]);
+    if (numeric_format == 's') printf("│ %s │ %25.12lg│\n", buffer, stack[sp - 1]);
+    printf("│....│..........................│\n");
   }
 
   for (int i=start; i<sp; i++) {
     get_register_name((sp) - i, buffer);
-    if (numeric_format == 'f') printf("│ %s │ %15.6lf│\n", buffer, stack[i]);
-    if (numeric_format == 's') printf("│ %s │ %15.6lg│\n", buffer, stack[i]);
+    if (numeric_format == 'f') printf("│ %s │ %25.6lf│\n", buffer, stack[i]);
+    if (numeric_format == 's') printf("│ %s │ %25.12lg│\n", buffer, stack[i]);
   } 
-  printf("└────┴────────────────┘\n");
+  printf("└────┴──────────────────────────┘\n");
 }
 
 
@@ -130,6 +130,25 @@ void show_credits(void) {
 
 /* Shows the help */
 void show_help(void) {
+    printf("\x1B[1;1H\x1B[2J"); // Clear screen
+    printf("HELP - Dave's (RPN) Calculator\n");
+    printf("------------------------------\n");
+    printf("Numbers & Ops:    <num>  +  -  *  /  ^\n");
+    printf("Modes:            fix  sci   deg  rad\n");
+    printf("Stack Ops:        d(drop)  s(swap)  c(clear)\n");
+    printf("                  roll  unroll  [arrows]\n");
+    printf("Consts & Rand:    pi   e   rnd/random\n");
+    printf("Functions:        sqrt  log  ln  log10  !  rec(/)\n");
+    printf("Trig:             sin cos tan  asin acos atan\n");
+    printf("Other Cmds:       ENTER = repeat\n");
+    printf("                  h/help  ?/credits  q/quit\n");
+    printf("------------------------------\n");
+    printf("Made with ❤ in Italy   (v%s)\n", APP_VERSION);
+    printf("Press ENTER to return...");
+    getchar();
+}
+
+void show_extended_help(void) {
     printf("\x1B[1;1H\x1B[2J"); // Clear screen
     printf("HELP - Dave's (RPN) Calculator\n");
     printf("---------------------------------\n");
@@ -162,7 +181,7 @@ void show_help(void) {
     printf("  log / ln                     Natural logarithm\n");
     printf("  log10                        Log base 10\n");
     printf("  !                            Factorial (n!)\n");
-    printf("  rec / \\                      Reciprocal (1/x)\n");
+    printf("  rec or \\                     Reciprocal (1/x)\n");
     printf("\n");
     printf("Trigonometry:\n");
     printf("  sin  cos  tan                Basic trig functions\n");
