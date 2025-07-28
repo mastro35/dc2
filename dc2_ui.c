@@ -135,7 +135,6 @@ void show_help(void) {
     printf("---------------------------------\n");
     printf("Basics:\n");
     printf("  <number>                     Push number to stack\n");
-    printf("  ENTER (empty)                Duplicate top of stack (x -> x x)\n");
     printf("  + - * /                      Arithmetic operations\n");
     printf("  ^                            Power (y^x)\n");
     printf("  fix / sci                    Set numeric display format\n");
@@ -170,7 +169,7 @@ void show_help(void) {
     printf("  asin acos atan               Inverse trig functions\n");
     printf("\n");
     printf("Other Commands:\n");
-    printf("  r / redo                     Repeat last command\n");
+    printf("  ENTER                        Repeat last input\n");
     printf("  h / help                     Show this help\n");
     printf("  ? / credits                  About the author\n");
     printf("  q / quit                     Exit calculator\n");

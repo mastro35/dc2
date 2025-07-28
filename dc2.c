@@ -37,6 +37,7 @@
 #include <math.h>
 #include <time.h>
 #include <getopt.h>
+#include <ctype.h>
 
 #include <termios.h>
 #include <unistd.h>
@@ -106,7 +107,7 @@ void set_fix_numeric_format(void) {
 
 /* Compute the command received */
 int compute(char* command, char* last_command) {
-  int prevent_last_command_mem = 0;
+//  int prevent_last_command_mem = 0;
   double value = 0;
   int is_numeric = 0;
   operation_2o operation_2o = NULL;
@@ -116,11 +117,11 @@ int compute(char* command, char* last_command) {
   if ((strcmp(command, "quit") == 0) ||
       (strcmp(command, "q") == 0)) return 1;
 
-  if ((strcmp(command, "redo") == 0) || 
-      (strcmp(command, "r") == 0)) {
-    prevent_last_command_mem = 1;
-    strcpy(command, last_command);
-  }
+//  if ((strcmp(command, "redo") == 0) || 
+//      (strcmp(command, "r") == 0)) {
+//    prevent_last_command_mem = 1;
+//    strcpy(command, last_command);
+// }
 
   if (strcmp(command, "") == 0) {
     if (sp == 0) return 0;
@@ -146,7 +147,8 @@ int compute(char* command, char* last_command) {
   if (is_numeric) {
     push(value);
   } else {
-    if (!prevent_last_command_mem) strcpy(last_command, command);
+    //if (!prevent_last_command_mem) 
+    strcpy(last_command, command);
   }
         
   if ((operation_2o = get_operation_2o(command))) {
@@ -229,13 +231,20 @@ void power_fgets(char *buffer, int max_len) {
         
         buffer[i] = '\0';
     }
-
+    
     disable_raw_mode(&old_termios);
 }
 
 void get_input(char* input) {
     printf("> ");
     power_fgets(input, INPUT_BUFFER - 1);
+
+    // to lower case
+    while (*input) {
+        *input = tolower((unsigned char)*input);
+        input++;
+    }
+
     input[strcspn(input, "\n")] = '\0';
 }
 
