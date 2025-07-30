@@ -34,7 +34,9 @@
 
 #define STACK_LENGTH 99
 #define INPUT_BUFFER 100
-#define MAX_VIEWABLE_STACK 20
+#define MAX_VIEWABLE_STACK 15
+#define HISTORY_MAX_VIEWABLE_ELEMENTS 15
+#define PROMPT_POSITION 24
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,6 +53,7 @@ double stack[STACK_LENGTH];
 char operation_log[100][500];
 int n_operation_log = 0;
 int sp = 0;
+int view_offset = 0;
 
 // dc2 starts in rad mode with scientific notation
 char mode = 'r';
@@ -124,12 +127,6 @@ int compute(char* command, char* last_command) {
   if ((strcmp(command, "quit") == 0) ||
       (strcmp(command, "q") == 0)) return 1;
 
-//  if ((strcmp(command, "redo") == 0) || 
-//      (strcmp(command, "r") == 0)) {
-//    prevent_last_command_mem = 1;
-//    strcpy(command, last_command);
-// }
-
   if (strcmp(command, "") == 0) {
     if (sp == 0) return 0;
     push(pick(sp));
@@ -154,10 +151,9 @@ int compute(char* command, char* last_command) {
   if (is_numeric) {
     push(value);
   } else {
-    //if (!prevent_last_command_mem) 
     strcpy(last_command, command);
   }
-        
+
   if ((operation_2o = get_operation_2o(command))) {
     compute_operation_2o(operation_2o, command);
   }
@@ -171,7 +167,7 @@ int compute(char* command, char* last_command) {
   }
 
   if ((operation_0o = get_operation_0o(command))) {
-    compute_operation_0o(operation_0o, command);
+    compute_operation_0o(operation_0o);
   }
 
     
@@ -209,10 +205,10 @@ void power_fgets(char *buffer, int max_len) {
           if (seq1 == '[') {
             char seq2 = getchar();
             switch (seq2) {
-            case 'A': strcpy(buffer, "ARROW_UP\0"); break; // printf("\n[FRECCIA SU]\n"); break;
-            case 'B': strcpy(buffer, "ARROW_DOWN\0"); break; // printf("\n[FRECCIA GIÙ]\n"); break;
-            case 'C': strcpy(buffer, "ARROW_RIGHT\0"); break; // printf("\n[FRECCIA DESTRA]\n"); break;
-            case 'D': strcpy(buffer, "ARROW_LEFT\0"); break; // printf("\n[FRECCIA SINISTRA]\n"); break;
+            case 'A': strcpy(buffer, "arrow_up\0"); break; // printf("\n[FRECCIA SU]\n"); break;
+            case 'B': strcpy(buffer, "arrow_down\0"); break; // printf("\n[FRECCIA GIÙ]\n"); break;
+            case 'C': strcpy(buffer, "arrow_right\0"); break; // printf("\n[FRECCIA DESTRA]\n"); break;
+            case 'D': strcpy(buffer, "arrow_left\0"); break; // printf("\n[FRECCIA SINISTRA]\n"); break;
             default: break;
             }
           }            
@@ -243,7 +239,7 @@ void power_fgets(char *buffer, int max_len) {
 }
 
 void get_input(char* input) {
-    locate(1,30);
+    locate(1,PROMPT_POSITION);
     printf("─────────\n");
     printf("‣ ");
     power_fgets(input, INPUT_BUFFER - 1);
@@ -286,6 +282,7 @@ void handle_command_line_input(int argc, char* argv[]) {
 }
 
 operation_0o get_operation_0o(char* operation) {
+
   if ((strcmp(operation, "credits") == 0) || 
       (strcmp(operation, "?") == 0)) {
     return show_credits;
@@ -333,14 +330,25 @@ operation_0o get_operation_0o(char* operation) {
 
   if ((strcmp(operation, "roll") == 0) ||
       (strcmp(operation, "rroll") == 0) || 
-     (strcmp(operation, "ARROW_RIGHT") == 0)) {
+     (strcmp(operation, "arrow_right") == 0)) {
     return rroll;
   }
 
   if ((strcmp(operation, "unroll") == 0) ||
       (strcmp(operation, "lroll") == 0) || 
-     (strcmp(operation, "ARROW_LEFT") == 0)) {
+     (strcmp(operation, "arrow_left") == 0)) {
     return lroll;
+  }
+
+  if (strcmp(operation, "arrow_up") == 0) {
+    view_offset = view_offset + 1;
+    return show_history;
+  }
+
+  if (strcmp(operation, "arrow_down") == 0) {
+    view_offset = view_offset - 1;
+    if (view_offset < 0) view_offset = 0;
+    return show_history;
   }
 
   return NULL;

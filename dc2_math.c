@@ -35,11 +35,6 @@ void log_operation_1o(double x, char *name, double r) {
   n_operation_log ++;
 }
 
-void log_operation_0o(char *name) {
-  sprintf(operation_log[n_operation_log], "%s", name);
-  n_operation_log ++;
-}
-
 /* Generic function pointers for the single operand operations
    and the two-operands operations */
 typedef void (*operation_0o)(void);
@@ -47,9 +42,8 @@ typedef double (*operation_1o)(double);
 typedef double (*operation_2o)(double, double);
 
 /* Compute a single operand operation */
-void compute_operation_0o(operation_0o f, char *name) {
+void compute_operation_0o(operation_0o f) {
   f();
-  log_operation_0o(name);
 }
 
 /* Compute a single operand operation */

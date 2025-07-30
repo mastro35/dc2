@@ -89,14 +89,34 @@ void print_number(char* buffer, double number) {
 /* Show history */
 void show_history(void) {
   int k = 0;
-  locate (40, 1);
+  locate (40, 5);
   printf("HISTORY\n");  
-  locate (40, 2);
+  locate (40, 6);
   printf("───────\n");  
-  for (int i = n_operation_log - 25 >0 ? n_operation_log - 25 : 0; i<=n_operation_log; i++) {
-    locate (40, (3 + (k++)));
+
+  int begin = (n_operation_log - HISTORY_MAX_VIEWABLE_ELEMENTS - view_offset) > 0 ? n_operation_log - HISTORY_MAX_VIEWABLE_ELEMENTS - view_offset: 0;
+  int end = (begin + HISTORY_MAX_VIEWABLE_ELEMENTS);
+
+  if ((end + view_offset > n_operation_log) && (view_offset > 0)) view_offset--;
+
+//  locate (40, 25);
+//  printf("%d %d %d %d", n_operation_log, begin, end, view_offset);
+
+  if (begin > 0) {
+    locate (39, 7);
+    printf("⇡");    
+  }
+
+  // Display the history
+  for (int i = begin; i < end; i++) {
+    locate (40, (7 + (k++)));
     printf("%s", operation_log[i]);
   }
+
+  if (end < n_operation_log) {
+    locate (39, (7 + k - 1));
+    printf("⇣");    
+  } 
 }
 
 /* Shows the status of the calculator  */
