@@ -48,6 +48,8 @@
 #include <unistd.h>
 
 double stack[STACK_LENGTH];
+char operation_log[100][500];
+int n_operation_log = 0;
 int sp = 0;
 
 // dc2 starts in rad mode with scientific notation
@@ -157,19 +159,19 @@ int compute(char* command, char* last_command) {
   }
         
   if ((operation_2o = get_operation_2o(command))) {
-    compute_operation_2o(operation_2o);
+    compute_operation_2o(operation_2o, command);
   }
 
   if ((operation_1o = get_operation_1o(command))) {
-    compute_operation_1o(operation_1o);
+    compute_operation_1o(operation_1o, command);
   }
 
   if ((operation_1o = get_trigonometric_operation_1o(command))) {
-    compute_trigonometric_operation_1o(operation_1o);
+    compute_trigonometric_operation_1o(operation_1o, command);
   }
 
   if ((operation_0o = get_operation_0o(command))) {
-    compute_operation_0o(operation_0o);
+    compute_operation_0o(operation_0o, command);
   }
 
     
@@ -241,7 +243,9 @@ void power_fgets(char *buffer, int max_len) {
 }
 
 void get_input(char* input) {
-    printf("> ");
+    locate(1,30);
+    printf("─────────\n");
+    printf("‣ ");
     power_fgets(input, INPUT_BUFFER - 1);
 
     // to lower case

@@ -24,6 +24,22 @@
    Math Functions
    -------------- */
 
+/* Log */
+void log_operation_2o(double y, double x, char *name, double r) {
+  sprintf(operation_log[n_operation_log], "%lg %s %lg = %lg", y, name, x, r);
+  n_operation_log ++;
+}
+
+void log_operation_1o(double x, char *name, double r) {
+  sprintf(operation_log[n_operation_log], "%lg %s = %lg", x, name, r);
+  n_operation_log ++;
+}
+
+void log_operation_0o(char *name) {
+  sprintf(operation_log[n_operation_log], "%s", name);
+  n_operation_log ++;
+}
+
 /* Generic function pointers for the single operand operations
    and the two-operands operations */
 typedef void (*operation_0o)(void);
@@ -31,33 +47,37 @@ typedef double (*operation_1o)(double);
 typedef double (*operation_2o)(double, double);
 
 /* Compute a single operand operation */
-void compute_operation_0o(operation_0o f) {
+void compute_operation_0o(operation_0o f, char *name) {
   f();
+  log_operation_0o(name);
 }
 
 /* Compute a single operand operation */
-void compute_operation_1o(operation_1o f) {
+void compute_operation_1o(operation_1o f, char *name) {
   if (sp < 1) return;
   double x = pop();
   double r = f(x);
   push(r);
+  log_operation_1o(x, name, r);
 }
 
-void compute_trigonometric_operation_1o(operation_1o f) {
+void compute_trigonometric_operation_1o(operation_1o f, char *name) {
   if (sp < 1) return;
   double x = pop();
   if (mode == 'd') x = x * M_PI / 180;
   double r = f(x);
   push(r);
+  log_operation_1o(x, name, r);
 }
 
 /* Compute a two-operands operation */
-void compute_operation_2o(operation_2o f) {
+void compute_operation_2o(operation_2o f, char *name) {
   if (sp < 2) return;
   double y = pop();
   double x = pop();
   double r = f(y, x);
   push(r);
+  log_operation_2o(y, x, name, r);
 }
 
 /* Compute the power x of y */

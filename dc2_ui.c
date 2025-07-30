@@ -20,6 +20,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+/* locate the cursor in a specific position */
+void locate(int x, int y) {
+    printf("\033[%d;%dH", y, x);
+}
+
 /* Returns the register name to be displayed for a stack position */
 void get_register_name(int i, char* buffer) {
   sprintf(buffer, "%2d", i);
@@ -70,14 +75,27 @@ void show_license_message(void) {
 void print_number(char* buffer, double number) {
   double abs_number = number < 0 ? number * -1 : number; 
   if ((abs_number >= 1e10) || (abs_number > 0 && abs_number < 1e-6)) {
-    printf("│ %s │ %25.15e|\n", buffer, number);
+    printf("│ %s │ %25.15e│\n", buffer, number);
   } else {
     if (numeric_format == 'f') {
-      printf("│ %s │ %25.6f|\n", buffer, number);
+      printf("│ %s │ %25.6f│\n", buffer, number);
     }
     else {
-      printf("│ %s │ %25.15g|\n", buffer, number);
+      printf("│ %s │ %25.15g│\n", buffer, number);
     }
+  }
+}
+
+/* Show history */
+void show_history(void) {
+  int k = 0;
+  locate (40, 1);
+  printf("HISTORY\n");  
+  locate (40, 2);
+  printf("───────\n");  
+  for (int i = n_operation_log - 25 >0 ? n_operation_log - 25 : 0; i<=n_operation_log; i++) {
+    locate (40, (3 + (k++)));
+    printf("%s", operation_log[i]);
   }
 }
 
@@ -115,6 +133,9 @@ void view_status(void) {
     print_number(buffer, stack[i]);
   } 
   printf("└────┴──────────────────────────┘\n");
+
+  show_history();
+  
 }
 
 
