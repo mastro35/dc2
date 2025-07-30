@@ -67,6 +67,20 @@ void show_license_message(void) {
   getchar();
 }
 
+void print_number(char* buffer, double number) {
+  double abs_number = number < 0 ? number * -1 : number; 
+  if ((abs_number >= 1e10) || (abs_number > 0 && abs_number < 1e-6)) {
+    printf("│ %s │ %25.15e|\n", buffer, number);
+  } else {
+    if (numeric_format == 'f') {
+      printf("│ %s │ %25.6f|\n", buffer, number);
+    }
+    else {
+      printf("│ %s │ %25.15g|\n", buffer, number);
+    }
+  }
+}
+
 /* Shows the status of the calculator  */
 void view_status(void) {
   printf("\x1B[1;1H\x1B[2J");
@@ -92,15 +106,13 @@ void view_status(void) {
   if (sp > MAX_VIEWABLE_STACK) {
     start = sp - (MAX_VIEWABLE_STACK - 1);
     get_register_name((sp) , buffer);
-    if (numeric_format == 'f') printf("│ %s │ %25.6lf│\n", buffer, stack[sp - 1]);
-    if (numeric_format == 's') printf("│ %s │ %25.12lg│\n", buffer, stack[sp - 1]);
+    print_number(buffer, stack[sp - 1]);
     printf("│....│..........................│\n");
   }
 
   for (int i=start; i<sp; i++) {
     get_register_name((sp) - i, buffer);
-    if (numeric_format == 'f') printf("│ %s │ %25.6lf│\n", buffer, stack[i]);
-    if (numeric_format == 's') printf("│ %s │ %25.12lg│\n", buffer, stack[i]);
+    print_number(buffer, stack[i]);
   } 
   printf("└────┴──────────────────────────┘\n");
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /* dc2.c -- Dave's (RPN) Calculator
  *
- * A simple RPN calculator for terminal
+ * A simple RPN calculator for your terminal
  * made with love in Italy.
  *
  * Copyright 2025 Davide Mastromatteo
@@ -22,9 +22,14 @@
 
 #define APP_VERSION_MAJOR 0
 #define APP_VERSION_MINOR 2
-#define APP_VERSION_PATCH 0
+#define APP_VERSION_PATCH 5
 
-#define APP_VERSION "0.2.0"
+// Helper macros to stringify values
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
+#define APP_VERSION STR(APP_VERSION_MAJOR) "." STR(APP_VERSION_MINOR) "." STR(APP_VERSION_PATCH)
+
 #define COPYRIGHT "2025 Davide Mastromatteo"
 
 #define STACK_LENGTH 99
