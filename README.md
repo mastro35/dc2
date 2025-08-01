@@ -1,5 +1,7 @@
 # dc2 – Dave's RPN Calculator
 
+## WARNING: this project has been merged into [luka](https://github.com/mastro35/luka). Please, refer to the new github page, since this one will soon be closed. Thanks!
+
 A simple, fast, and minimal Reverse Polish Notation (RPN) calculator for the terminal.  
 Made with love in Italy 🇮🇹 by Davide Mastromatteo (mastro35@gmail.com)
 
